@@ -608,11 +608,20 @@ async def check_milestones(client, state):
 
 # ── Telegram sending ───────────────────────────────────────────────────────────
 
+async def _resolve(client, chat_id):
+    """Resolve a chat_id to a Telethon entity so the correct peer type is used."""
+    try:
+        return await client.get_entity(chat_id)
+    except Exception:
+        return chat_id
+
+
 async def send_all(client, outbox, attachments):
     for chat_id, messages in outbox.items():
         try:
+            entity = await _resolve(client, chat_id)
             text = messages[0] if len(messages) == 1 else ("\n\n" + ("─" * 30) + "\n\n").join(messages)
-            await client.send_message(chat_id, text)
+            await client.send_message(entity, text)
             log.info(f"Sent to {chat_id}")
             await asyncio.sleep(2)
         except FloodWaitError as e:
@@ -622,9 +631,10 @@ async def send_all(client, outbox, attachments):
 
     for chat_id, caption, data, filename in attachments:
         try:
+            entity = await _resolve(client, chat_id)
             file = io.BytesIO(data)
             file.name = filename
-            await client.send_file(chat_id, file, caption=caption or "")
+            await client.send_file(entity, file, caption=caption or "")
             log.info(f"Sent image {filename} to {chat_id}")
             await asyncio.sleep(2)
         except Exception as e:
