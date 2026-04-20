@@ -170,7 +170,7 @@ def fetch_subtask_full(issue_key):
 
 def download_attachment(url):
     try:
-        r = requests.get(url, auth=JIRA_AUTH, timeout=30)
+        r = requests.get(url, headers=_jira_headers(), timeout=30)
         r.raise_for_status()
         return r.content
     except Exception as e:
