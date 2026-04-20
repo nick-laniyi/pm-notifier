@@ -25,7 +25,9 @@
     "status_LS-132_Done",
     "status_LS-137_In Progress",
     "status_LS-137_In Review",
-    "status_LS-137_Done"
+    "status_LS-137_Done",
+    "attachment_10000",
+    "attachment_10068"
   ],
   "last_poll": null,
   "nudged_today": {
