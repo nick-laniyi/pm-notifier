@@ -23,6 +23,22 @@ jobs:
       - name: Install dependencies
         run: pip install requests telethon
 
+      - name: Verify Jira token
+        env:
+          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
+        run: |
+          python3 -c "
+          import os, requests
+          token = os.environ['JIRA_TOKEN']
+          print(f'Token length: {len(token)}, starts with: {token[:8]}')
+          r = requests.get('https://codingmanagerratio.atlassian.net/rest/api/3/myself',
+              auth=('codingmanager.ratio@gmail.com', token),
+              headers={'Accept':'application/json'})
+          print(f'Jira auth status: {r.status_code}')
+          if r.ok: print('Jira auth OK:', r.json().get('displayName'))
+          else: print('Jira auth FAILED:', r.text[:200])
+          "
+
       - name: Run notifier
         env:
           TELEGRAM_SESSION: ${{ secrets.TELEGRAM_SESSION }}
