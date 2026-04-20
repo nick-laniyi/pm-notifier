@@ -122,16 +122,23 @@ def is_weekly_summary_time(state):
 
 # ── Jira helpers ───────────────────────────────────────────────────────────────
 
+def _jira_headers(extra=None):
+    import base64
+    creds = base64.b64encode(f"{JIRA_USER}:{JIRA_TOKEN}".encode()).decode()
+    h = {"Authorization": f"Basic {creds}", "Accept": "application/json", "User-Agent": "Mozilla/5.0"}
+    if extra:
+        h.update(extra)
+    return h
+
+
 def jira_get(path, params=None):
-    r = requests.get(f"{JIRA_BASE}{path}", auth=JIRA_AUTH,
-                     headers={"Accept": "application/json"}, params=params, timeout=15)
+    r = requests.get(f"{JIRA_BASE}{path}", headers=_jira_headers(), params=params, timeout=15)
     r.raise_for_status()
     return r.json()
 
 
 def jira_post(path, body):
-    r = requests.post(f"{JIRA_BASE}{path}", auth=JIRA_AUTH,
-                      headers={"Accept": "application/json", "Content-Type": "application/json"},
+    r = requests.post(f"{JIRA_BASE}{path}", headers=_jira_headers({"Content-Type": "application/json"}),
                       json=body, timeout=15)
     r.raise_for_status()
     return r.json()
