@@ -1,0 +1,47 @@
+{
+  "notified_events": [
+    "status_LS-5_In Progress",
+    "assign_LS-5_5ecb867e730ec90c197e6015",
+    "status_LS-9_In Progress",
+    "assign_LS-9_712020:3f74454f-ce7d-4446-af5a-551b87c3b611",
+    "status_LS-35_In Progress",
+    "assign_LS-35_712020:a70b0562-5559-4eb1-b51d-ed5882b13ed4",
+    "pm_comment_LS-9_10000",
+    "pm_comment_LS-9_10034",
+    "assign_LS-101_712020:ddd44a7a-9648-4d5d-865e-48fe3afbbdc2",
+    "assign_LS-132_712020:b976bb69-4751-4f69-82f1-c14489d49974",
+    "assign_LS-137_5ecb867e730ec90c197e6015",
+    "status_LS-5_In Review",
+    "status_LS-5_Done",
+    "status_LS-9_In Review",
+    "status_LS-9_Done",
+    "status_LS-35_In Review",
+    "status_LS-35_Done",
+    "status_LS-101_In Progress",
+    "status_LS-101_In Review",
+    "status_LS-101_Done",
+    "status_LS-132_In Progress",
+    "status_LS-132_In Review",
+    "status_LS-132_Done",
+    "status_LS-137_In Progress",
+    "status_LS-137_In Review",
+    "status_LS-137_Done"
+  ],
+  "last_poll": null,
+  "nudged_today": {
+    "LS-5": "2026-04-20",
+    "LS-9": "2026-04-20",
+    "LS-101": "2026-04-20"
+  },
+  "last_weekly_summary": null,
+  "seen_comments": [],
+  "sent_milestone_versions": [
+    "10000",
+    "10001",
+    "10002",
+    "10003",
+    "10004",
+    "10005"
+  ],
+  "sent_initial_milestone_report": true
+}
