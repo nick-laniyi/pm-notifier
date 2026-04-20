@@ -28,15 +28,14 @@ jobs:
           JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
         run: |
           python3 -c "
-          import os, requests
+          import os, requests, base64
           token = os.environ['JIRA_TOKEN']
-          print(f'Token length: {len(token)}, starts with: {token[:8]}')
-          r = requests.get('https://codingmanagerratio.atlassian.net/rest/api/3/myself',
-              auth=('codingmanager.ratio@gmail.com', token),
-              headers={'Accept':'application/json'})
-          print(f'Jira auth status: {r.status_code}')
-          if r.ok: print('Jira auth OK:', r.json().get('displayName'))
-          else: print('Jira auth FAILED:', r.text[:200])
+          creds = base64.b64encode(f'codingmanager.ratio@gmail.com:{token}'.encode()).decode()
+          headers = {'Authorization': f'Basic {creds}', 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0'}
+          r = requests.get('https://codingmanagerratio.atlassian.net/rest/api/3/myself', headers=headers)
+          print(f'Status: {r.status_code}')
+          if r.ok: print('Auth OK:', r.json().get('displayName'))
+          else: print('FAILED:', r.text[:300])
           "
 
       - name: Run notifier
