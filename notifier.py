@@ -520,29 +520,34 @@ def process_issues(issues, state):
                         f"💬 Note added to your task\n\n[{key}] {summary}\n\n{body_text[:400]}\n\n"
                         f"👉 {JIRA_BASE}/browse/{key}")
 
-            if has_media:
-                seen_key = f"comment_media_{key}_{comment_id}"
-                if not already_notified(state, seen_key):
-                    mark_notified(state, seen_key)
-                    targets = [PM_REVIEW_GROUP]
-                    if emp and emp["chat_id"] != PM_REVIEW_GROUP:
-                        targets.append(emp["chat_id"])
-                    for att in f.get("attachment", []) or []:
-                        att_id  = att.get("id", "")
-                        att_key = f"attachment_{att_id}"
-                        if already_notified(state, att_key):
-                            continue
-                        mark_notified(state, att_key)
-                        if att.get("mimeType", "").startswith("image/"):
-                            data = download_attachment(att["content"])
-                            if data:
-                                fname = att.get("filename", "image.png")
-                                caption_pm  = msg_screenshot(key, summary, author_name, body_text)
-                                caption_emp = (f"🖼 Screenshot added to your task\n\n[{key}] {summary}\n"
-                                               f"By: {author_name}\n\n👉 {JIRA_BASE}/browse/{key}")
-                                for i, chat_id in enumerate(targets):
-                                    cap = caption_pm if chat_id == PM_REVIEW_GROUP else caption_emp
-                                    attachments.append((chat_id, cap, data, fname))
+
+        # Attachments — scan directly (comment body is truncated in bulk sprint fetch)
+        for att in (f.get("attachment") or []):
+            att_id  = att.get("id", "")
+            att_key = f"attachment_{att_id}"
+            if already_notified(state, att_key):
+                continue
+            mark_notified(state, att_key)
+            if not att.get("mimeType", "").startswith("image/"):
+                continue
+            uploader_id   = att.get("author", {}).get("accountId", "")
+            uploader_name = att.get("author", {}).get("displayName", "Someone")
+            data = download_attachment(att["content"])
+            if not data:
+                continue
+            fname    = att.get("filename", "image.png")
+            targets  = {PM_REVIEW_GROUP}
+            if emp:
+                targets.add(emp["chat_id"])
+            uploader_emp = EMPLOYEE_MAP.get(uploader_id)
+            if uploader_emp:
+                targets.add(uploader_emp["chat_id"])
+            caption_pm  = msg_screenshot(key, summary, uploader_name, "")
+            caption_emp = (f"🖼 Screenshot added to your task\n\n[{key}] {summary}\n"
+                           f"By: {uploader_name}\n\n👉 {JIRA_BASE}/browse/{key}")
+            for chat_id in targets:
+                cap = caption_pm if chat_id == PM_REVIEW_GROUP else caption_emp
+                attachments.append((chat_id, cap, data, fname))
 
         # Stale nudge
         if status in ("To Do", "In Progress") and emp and not was_nudged_today(state, key):
