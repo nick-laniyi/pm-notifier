@@ -2,7 +2,7 @@ name: Jira Notifier
 
 on:
   schedule:
-    - cron: '*/10 * * * *'   # every 10 minutes
+    - cron: '*/3 * * * *'    # every 3 minutes
   workflow_dispatch:           # manual trigger from GitHub UI
 
 jobs:
