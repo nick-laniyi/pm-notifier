@@ -237,10 +237,10 @@ def build_assignment_message(parent_key, assignee_name):
                 pass
         subtasks = fields.get("subtasks", [])
         lines = [
-            "TASK 📌📌📌",
-            f"Assigned to {assignee_name}",
+            "**TASK 📌📌📌**",
+            f"**Assigned to {assignee_name}**",
             "",
-            title,
+            f"**{title}**",
             "—" * 45,
             "",
         ]
@@ -256,7 +256,7 @@ def build_assignment_message(parent_key, assignee_name):
                         desc = desc[:297] + "..."
                 except Exception:
                     desc = ""
-                lines.append(f"({i}). {clean} ⏳")
+                lines.append(f"**({i}). {clean} ⏳**")
                 if desc:
                     lines.append(desc)
                 lines.append("")
@@ -265,43 +265,43 @@ def build_assignment_message(parent_key, assignee_name):
             if desc:
                 lines.append(desc)
                 lines.append("")
-        lines.append(f"JIRA WORK ITEM LINK: {JIRA_BASE}/browse/{parent_key}")
+        lines.append(f"**JIRA WORK ITEM LINK:** {JIRA_BASE}/browse/{parent_key}")
         lines.append("")
-        lines.append(f"Delivery Timeline ⏰: {due}")
+        lines.append(f"**Delivery Timeline ⏰: {due}**")
         lines.append("")
-        lines.append("Please go to Jira to view the full task, update your status as you work, and drop screenshots/comments when done.")
+        lines.append("You can find the full details on Jira. Kindly move the status to **In Progress** once you begin, and feel free to drop screenshots or comments as you go 🙏")
         return "\n".join(lines)
     except Exception as e:
         log.error(f"Failed to build assignment message for {parent_key}: {e}")
-        return (f"TASK 📌📌📌\nAssigned to {assignee_name}\n\n[{parent_key}]\n\n"
-                f"JIRA WORK ITEM LINK: {JIRA_BASE}/browse/{parent_key}\n\n"
-                f"Please go to Jira to view the full details and update your status.")
+        return (f"**TASK 📌📌📌**\n**Assigned to {assignee_name}**\n\n[{parent_key}]\n\n"
+                f"**JIRA WORK ITEM LINK:** {JIRA_BASE}/browse/{parent_key}\n\n"
+                f"You can find the full details on Jira. Kindly move the status to **In Progress** once you begin 🙏")
 
 
 def msg_in_progress(key, summary, name):
-    return (f"🔵 {name} started work\n\n[{key}] {summary}\n\n"
-            f"Keep Jira updated. Move to In Review when ready.\n👉 {JIRA_BASE}/browse/{key}")
+    return (f"**🔵 {name} has started work on**\n\n[{key}] {summary}\n\n"
+            f"Jira updated as you go would be great. Move to In Review whenever you're done 👍\n👉 {JIRA_BASE}/browse/{key}")
 
 
 def msg_in_review(key, summary, name):
-    return (f"👀 Ready for your review\n\n[{key}] {summary}\nSubmitted by: {name}\n\n"
+    return (f"**👀 Ready for your review**\n\n[{key}] {summary}\nSubmitted by: {name}\n\n"
             f"👉 {JIRA_BASE}/browse/{key}")
 
 
 def msg_done(key, summary):
-    return (f"✅ Marked as Done\n\n[{key}] {summary}\n\nGood work. 👍\n"
+    return (f"**✅ Marked as Done**\n\n[{key}] {summary}\n\nWell done! 🙌\n"
             f"👉 {JIRA_BASE}/browse/{key}")
 
 
 def msg_stale(key, summary, status, days):
-    return (f"⏳ Update needed\n\n[{key}] {summary}\n"
-            f"Status: {status} — no update in {days} day{'s' if days != 1 else ''}\n\n"
-            f"Please drop a comment or update the status in Jira.\n👉 {JIRA_BASE}/browse/{key}")
+    return (f"**⏳ Quick check-in**\n\n**[{key}]** {summary}\n"
+            f"This has been at **{status}** for **{days} day{'s' if days != 1 else ''}** — just wanted to check in.\n\n"
+            f"A quick status update or comment on Jira would be really helpful 🙏\n👉 {JIRA_BASE}/browse/{key}")
 
 
 def msg_screenshot(key, summary, author, comment_text):
     preview = comment_text[:200].strip() if comment_text else ""
-    return (f"🖼 Screenshot/file added\n\n[{key}] {summary}\nBy: {author}\n"
+    return (f"**🖼 Screenshot/file added**\n\n[{key}] {summary}\nBy: {author}\n"
             + (f'"{preview}"\n' if preview else "")
             + f"\n👉 {JIRA_BASE}/browse/{key}")
 
@@ -465,10 +465,10 @@ def process_issues(issues, state):
                         parent_key     = (f.get("parent") or {}).get("key", "")
                         parent_summary = (f.get("parent") or {}).get("fields", {}).get("summary", "")
                         url            = f"{JIRA_BASE}/browse/{key}"
-                        msg = (f"TASK 📌📌📌\nAssigned to {new_emp['name']}\n\n[{key}] {summary}\n"
+                        msg = (f"**TASK 📌📌📌**\n**Assigned to {new_emp['name']}**\n\n**[{key}] {summary}**\n"
                                + (f"Part of: {parent_key} — {parent_summary[:50]}\n" if parent_key else "")
-                               + f"\nJIRA WORK ITEM LINK: {url}\n\n"
-                               "Please go to Jira to view details and update your status as you work.")
+                               + f"\n**JIRA WORK ITEM LINK:** {url}\n\n"
+                               "Full details are on Jira. Kindly move the status to **In Progress** once you're ready to begin 🙏")
                         outbox.setdefault(new_emp["chat_id"], []).append(msg)
                     else:
                         outbox.setdefault(new_emp["chat_id"], []).append(
@@ -499,8 +499,8 @@ def process_issues(issues, state):
                 mark_notified(state, nudge_key)
                 url = f"{JIRA_BASE}/browse/{key}"
                 outbox.setdefault(emp["chat_id"], []).append(
-                    f"🎉 All subtasks are Done!\n\n[{key}] {summary}\n\n"
-                    f"All {len(subtasks)} subtasks are complete. Please review, then move to In Review.\n👉 {url}")
+                    f"**🎉 All subtasks are Done!**\n\n**[{key}]** {summary}\n\n"
+                    f"All {len(subtasks)} subtasks are complete — great progress! Whenever you're ready, feel free to move this to In Review 👍\n👉 {url}")
 
         # Comments
         PM_ACCOUNT_ID = "712020:117e1bc9-4cb0-4fa1-b8b9-7d0e10121c22"
@@ -570,7 +570,7 @@ async def check_milestones(client, state):
         try:
             messages = build_full_project_report()
             for msg in messages:
-                await client.send_message(BOSS_MILESTONE_GROUP, msg)
+                await client.send_message(BOSS_MILESTONE_GROUP, msg, parse_mode='md')
                 await asyncio.sleep(1)
             state["sent_initial_milestone_report"] = True
             for v in fetch_all_versions():
@@ -598,7 +598,7 @@ async def check_milestones(client, state):
         try:
             issues = fetch_version_issues(version["name"])
             msg    = build_milestone_completed_msg(version, issues)
-            await client.send_message(BOSS_MILESTONE_GROUP, msg)
+            await client.send_message(BOSS_MILESTONE_GROUP, msg, parse_mode='md')
             state["sent_milestone_versions"].append(vid)
             log.info(f"Milestone sent: {version['name']}")
             await asyncio.sleep(2)
@@ -621,7 +621,7 @@ async def send_all(client, outbox, attachments):
         try:
             entity = await _resolve(client, chat_id)
             text = messages[0] if len(messages) == 1 else ("\n\n" + ("─" * 30) + "\n\n").join(messages)
-            await client.send_message(entity, text)
+            await client.send_message(entity, text, parse_mode='md')
             log.info(f"Sent to {chat_id}")
             await asyncio.sleep(2)
         except FloodWaitError as e:
@@ -634,7 +634,7 @@ async def send_all(client, outbox, attachments):
             entity = await _resolve(client, chat_id)
             file = io.BytesIO(data)
             file.name = filename
-            await client.send_file(entity, file, caption=caption or "")
+            await client.send_file(entity, file, caption=caption or "", parse_mode='md')
             log.info(f"Sent image {filename} to {chat_id}")
             await asyncio.sleep(2)
         except Exception as e:
