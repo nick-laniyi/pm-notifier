@@ -438,10 +438,11 @@ def process_issues(issues, state):
         emp        = EMPLOYEE_MAP.get(account_id)
 
         for history in issue.get("changelog", {}).get("histories", []):
+            history_id = history.get("id", "")
             for item in history.get("items", []):
                 if item.get("field") == "status":
                     to_status = item.get("toString", "")
-                    ekey = f"status_{key}_{to_status}"
+                    ekey = f"status_{key}_{to_status}_{history_id}"
                     if already_notified(state, ekey):
                         continue
                     mark_notified(state, ekey)
