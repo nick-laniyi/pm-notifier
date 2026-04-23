@@ -40,14 +40,18 @@
     "status_LS-137_IN REVIEW_10751",
     "status_LS-137_Done_10756",
     "status_LS-101_To Do_10842",
-    "assign_LS-101_None"
+    "assign_LS-101_None",
+    "assign_LS-35_5ecb867e730ec90c197e6015",
+    "assign_LS-35_None",
+    "assign_LS-35_712020:117e1bc9-4cb0-4fa1-b8b9-7d0e10121c22"
   ],
   "last_poll": null,
   "nudged_today": {
     "LS-5": "2026-04-20",
     "LS-9": "2026-04-20",
     "LS-101": "2026-04-22",
-    "LS-35": "2026-04-23"
+    "LS-35": "2026-04-23",
+    "LS-142": "2026-04-23"
   },
   "last_weekly_summary": null,
   "seen_comments": [],
