@@ -38,14 +38,16 @@
     "status_LS-35_In Progress_10439",
     "status_LS-101_In Progress_10655",
     "status_LS-137_IN REVIEW_10751",
-    "status_LS-137_Done_10756"
+    "status_LS-137_Done_10756",
+    "status_LS-101_To Do_10842",
+    "assign_LS-101_None"
   ],
   "last_poll": null,
   "nudged_today": {
     "LS-5": "2026-04-20",
     "LS-9": "2026-04-20",
     "LS-101": "2026-04-22",
-    "LS-35": "2026-04-22"
+    "LS-35": "2026-04-23"
   },
   "last_weekly_summary": null,
   "seen_comments": [],
