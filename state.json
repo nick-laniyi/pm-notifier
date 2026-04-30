@@ -50,15 +50,16 @@
     "status_LS-137_IN REVIEW_11043",
     "status_LS-137_In Progress_11041",
     "assign_LS-166_5ecb867e730ec90c197e6015",
-    "status_LS-157_IN REVIEW_11182"
+    "status_LS-157_IN REVIEW_11182",
+    "status_LS-157_Done_11230"
   ],
   "last_poll": null,
   "nudged_today": {
     "LS-5": "2026-04-20",
     "LS-9": "2026-04-20",
     "LS-101": "2026-04-22",
-    "LS-35": "2026-04-29",
-    "LS-142": "2026-04-29"
+    "LS-35": "2026-04-30",
+    "LS-142": "2026-04-30"
   },
   "last_weekly_summary": null,
   "seen_comments": [],
