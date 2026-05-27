@@ -27,6 +27,7 @@ jobs:
         env:
           TELEGRAM_SESSION: ${{ secrets.TELEGRAM_SESSION }}
           JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
+          GH_NOTIFIER_TOKEN: ${{ secrets.GH_NOTIFIER_TOKEN }}
         run: python notifier.py
 
       - name: Save state

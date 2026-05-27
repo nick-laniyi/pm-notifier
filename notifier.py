@@ -29,6 +29,7 @@ API_HASH             = "4dd5a8b5e01cb5b34d8c720e0df968fb"
 TELEGRAM_SESSION     = os.environ["TELEGRAM_SESSION"]
 PM_REVIEW_GROUP      = -5145902047
 BOSS_MILESTONE_GROUP = -5278864899
+DEV_CHANNEL          = -1003953241669
 
 # ── Jira ───────────────────────────────────────────────────────────────────────
 JIRA_BASE    = "https://codingmanagerratio.atlassian.net"
@@ -37,6 +38,13 @@ JIRA_TOKEN   = os.environ["JIRA_TOKEN"]
 JIRA_AUTH    = (JIRA_USER, JIRA_TOKEN)
 JIRA_PROJECT = "LS"
 BOARD_ID     = 35
+
+# ── GitHub ─────────────────────────────────────────────────────────────────────
+GITHUB_TOKEN  = os.environ.get("GH_NOTIFIER_TOKEN", "")
+WATCHED_REPOS = [
+    {"owner": "codingmanagerratio", "repo": "trading-crm-backend",  "branch": "v2_main"},
+    {"owner": "codingmanagerratio", "repo": "trading-crm-frontend", "branch": "master"},
+]
 
 # ── Employee map ───────────────────────────────────────────────────────────────
 EMPLOYEE_MAP = {
@@ -81,6 +89,7 @@ def _migrate_state(state: dict) -> dict:
     state.setdefault("seen_comments", [])
     state.setdefault("sent_milestone_versions", [])
     state.setdefault("sent_initial_milestone_report", False)
+    state.setdefault("gh_seeded", False)
     return state
 
 
@@ -222,7 +231,7 @@ def adf_to_text(node):
     return "".join(adf_to_text(c) for c in node.get("content", []))
 
 
-# ── Message builders ───────────────────────────────────────────────────────────
+# ── Jira message builders ──────────────────────────────────────────────────────
 
 def build_assignment_message(parent_key, assignee_name):
     try:
@@ -419,6 +428,151 @@ def build_full_project_report():
     return messages
 
 
+# ── GitHub helpers ─────────────────────────────────────────────────────────────
+
+def github_get(path, params=None):
+    headers = {"Accept": "application/vnd.github+json"}
+    if GITHUB_TOKEN:
+        headers["Authorization"] = f"Bearer {GITHUB_TOKEN}"
+    r = requests.get(f"https://api.github.com{path}", headers=headers, params=params, timeout=15)
+    r.raise_for_status()
+    return r.json()
+
+
+def fetch_repo_prs(owner, repo):
+    return github_get(f"/repos/{owner}/{repo}/pulls",
+                      params={"state": "all", "sort": "updated", "direction": "desc", "per_page": 20})
+
+
+def fetch_recent_commits(owner, repo, branch):
+    return github_get(f"/repos/{owner}/{repo}/commits",
+                      params={"sha": branch, "per_page": 10})
+
+
+# ── GitHub message builders ────────────────────────────────────────────────────
+
+def msg_gh_pr_opened(repo, pr):
+    return (f"🔔 **New PR — {repo}**\n\n"
+            f"**#{pr['number']}** {pr['title']}\n"
+            f"By: {pr['user']['login']} → `{pr['base']['ref']}`\n\n"
+            f"👉 {pr['html_url']}")
+
+
+def msg_gh_pr_merged(repo, pr):
+    merged_by = (pr.get("merged_by") or {}).get("login", "unknown")
+    return (f"✅ **PR Merged — {repo}**\n\n"
+            f"**#{pr['number']}** {pr['title']}\n"
+            f"Merged by: {merged_by} into `{pr['base']['ref']}`\n\n"
+            f"👉 {pr['html_url']}")
+
+
+def msg_gh_pr_closed(repo, pr):
+    return (f"❌ **PR Closed — {repo}**\n\n"
+            f"**#{pr['number']}** {pr['title']}\n"
+            f"Closed without merging\n\n"
+            f"👉 {pr['html_url']}")
+
+
+def msg_gh_push(repo, branch, commits):
+    lines = [f"📦 **Push to `{branch}` — {repo}**\n"]
+    for c in commits[:5]:
+        sha    = c["sha"][:7]
+        msg    = c["commit"]["message"].split("\n")[0][:70]
+        author = c["commit"]["author"]["name"]
+        lines.append(f"`{sha}` {msg} — {author}")
+    if len(commits) > 5:
+        lines.append(f"... and {len(commits) - 5} more commit(s)")
+    lines.append(f"\n👉 https://github.com/codingmanagerratio/{repo}/commits/{branch}")
+    return "\n".join(lines)
+
+
+# ── GitHub event processing ────────────────────────────────────────────────────
+
+def process_github(state):
+    if not GITHUB_TOKEN:
+        log.info("No GH_NOTIFIER_TOKEN set — skipping GitHub checks")
+        return {}
+
+    outbox   = {}
+    is_first = not state["gh_seeded"]
+
+    for r in WATCHED_REPOS:
+        owner  = r["owner"]
+        repo   = r["repo"]
+        branch = r["branch"]
+
+        # PRs
+        try:
+            prs = fetch_repo_prs(owner, repo)
+        except Exception as e:
+            log.error(f"GitHub PR fetch failed for {repo}: {e}")
+            prs = []
+
+        for pr in prs:
+            num       = pr["number"]
+            is_merged = bool(pr.get("merged_at"))
+            pr_state  = pr["state"]
+
+            if pr_state == "open":
+                key = f"gh_pr_opened_{repo}_{num}"
+                if not already_notified(state, key):
+                    mark_notified(state, key)
+                    if not is_first:
+                        outbox.setdefault(DEV_CHANNEL, []).append(msg_gh_pr_opened(repo, pr))
+
+            elif pr_state == "closed":
+                if is_merged:
+                    key = f"gh_pr_merged_{repo}_{num}"
+                    if not already_notified(state, key):
+                        mark_notified(state, key)
+                        if not is_first:
+                            outbox.setdefault(DEV_CHANNEL, []).append(msg_gh_pr_merged(repo, pr))
+                else:
+                    key = f"gh_pr_closed_{repo}_{num}"
+                    if not already_notified(state, key):
+                        mark_notified(state, key)
+                        if not is_first:
+                            outbox.setdefault(DEV_CHANNEL, []).append(msg_gh_pr_closed(repo, pr))
+
+        # Commits / pushes
+        last_key = f"gh_last_sha_{repo}_{branch}"
+        last_sha = state.get(last_key)
+
+        try:
+            commits = fetch_recent_commits(owner, repo, branch)
+        except Exception as e:
+            log.error(f"GitHub commit fetch failed for {repo}/{branch}: {e}")
+            commits = []
+
+        if not commits:
+            continue
+
+        new_head = commits[0]["sha"]
+
+        if not last_sha or is_first:
+            state[last_key] = new_head
+            continue
+
+        if new_head == last_sha:
+            continue
+
+        new_commits = []
+        for c in commits:
+            if c["sha"] == last_sha:
+                break
+            new_commits.append(c)
+
+        if new_commits:
+            state[last_key] = new_head
+            outbox.setdefault(DEV_CHANNEL, []).append(msg_gh_push(repo, branch, new_commits))
+
+    if is_first:
+        state["gh_seeded"] = True
+        log.info("GitHub state seeded — will notify from next run onwards")
+
+    return outbox
+
+
 # ── Core processing ────────────────────────────────────────────────────────────
 
 def process_issues(issues, state):
@@ -511,7 +665,6 @@ def process_issues(issues, state):
             author_id   = comment.get("author", {}).get("accountId", "")
             author_name = comment.get("author", {}).get("displayName", "Someone")
             body_text   = adf_to_text(comment.get("body")).strip()
-            has_media   = _comment_has_media(comment.get("body"))
 
             if author_id == PM_ACCOUNT_ID and emp:
                 seen_key = f"pm_comment_{key}_{comment_id}"
@@ -521,8 +674,7 @@ def process_issues(issues, state):
                         f"💬 Note added to your task\n\n[{key}] {summary}\n\n{body_text[:400]}\n\n"
                         f"👉 {JIRA_BASE}/browse/{key}")
 
-
-        # Attachments — scan directly (comment body is truncated in bulk sprint fetch)
+        # Attachments
         for att in (f.get("attachment") or []):
             att_id  = att.get("id", "")
             att_key = f"attachment_{att_id}"
@@ -610,7 +762,6 @@ async def check_milestones(client, state):
 # ── Telegram sending ───────────────────────────────────────────────────────────
 
 async def _resolve(client, chat_id):
-    """Resolve a chat_id to a Telethon entity so the correct peer type is used."""
     try:
         return await client.get_entity(chat_id)
     except Exception:
@@ -657,10 +808,14 @@ async def main():
         issues              = fetch_sprint_issues(sprint_id)
         outbox, attachments = process_issues(issues, state)
         if not outbox and not attachments:
-            log.info("No new notifications")
+            log.info("No new Jira notifications")
     else:
         issues = []
         log.info("No active sprint")
+
+    gh_outbox = process_github(state)
+    for chat_id, messages in gh_outbox.items():
+        outbox.setdefault(chat_id, []).extend(messages)
 
     async with TelegramClient(StringSession(TELEGRAM_SESSION), API_ID, API_HASH) as client:
         if outbox or attachments:
