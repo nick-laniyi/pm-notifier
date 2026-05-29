@@ -66,7 +66,7 @@
   "nudged_today": {
     "LS-35": "2026-05-04",
     "LS-142": "2026-05-04",
-    "LS-166": "2026-05-28"
+    "LS-166": "2026-05-29"
   },
   "last_weekly_summary": "2026-05-18",
   "seen_comments": [],
@@ -80,6 +80,6 @@
   ],
   "sent_initial_milestone_report": true,
   "gh_seeded": true,
-  "gh_last_sha_trading-crm-backend_v2_main": "fd77fbbe4d4e9cc5122912d4d8642c8bf3e7545f",
+  "gh_last_sha_trading-crm-backend_v2_main": "db257d8bfa904f21e2b5557bab153bd602d510cf",
   "gh_last_sha_trading-crm-frontend_master": "b4788795b62e0e110222dbd4e81b485c3d17a778"
 }
