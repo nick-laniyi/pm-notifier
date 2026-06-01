@@ -65,7 +65,8 @@
     "status_LS-35_In Progress_11562",
     "status_LS-142_Done_11561",
     "status_LS-101_In Progress_11566",
-    "gh_pr_opened_trading-crm-frontend_2"
+    "gh_pr_opened_trading-crm-frontend_2",
+    "gh_pr_opened_trading-crm-frontend_3"
   ],
   "last_poll": null,
   "nudged_today": {
@@ -86,5 +87,5 @@
   "sent_initial_milestone_report": true,
   "gh_seeded": true,
   "gh_last_sha_trading-crm-backend_v2_main": "7f475cce524be933a4393f0ea90994310c477f93",
-  "gh_last_sha_trading-crm-frontend_master": "0075827eb5cf264a3fb7722b0d0ddbed67ee0ff9"
+  "gh_last_sha_trading-crm-frontend_master": "b78096bfa4d0fc9233a4340634ec773d6f24ed61"
 }
