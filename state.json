@@ -84,11 +84,12 @@
     "gh_pr_opened_trading-crm-backend_14",
     "gh_pr_opened_trading-crm-backend_13",
     "gh_pr_opened_trading-crm-backend_12",
-    "gh_pr_opened_trading-crm-backend_11"
+    "gh_pr_opened_trading-crm-backend_11",
+    "gh_pr_opened_trading-crm-backend_17"
   ],
   "last_poll": null,
   "nudged_today": {
-    "LS-35": "2026-06-13",
+    "LS-35": "2026-06-14",
     "LS-166": "2026-06-06"
   },
   "last_weekly_summary": "2026-05-18",
