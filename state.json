@@ -85,11 +85,17 @@
     "gh_pr_opened_trading-crm-backend_13",
     "gh_pr_opened_trading-crm-backend_12",
     "gh_pr_opened_trading-crm-backend_11",
-    "gh_pr_opened_trading-crm-backend_17"
+    "gh_pr_opened_trading-crm-backend_17",
+    "gh_pr_merged_trading-crm-backend_16",
+    "gh_pr_merged_trading-crm-backend_15",
+    "gh_pr_merged_trading-crm-backend_14",
+    "gh_pr_merged_trading-crm-backend_13",
+    "gh_pr_merged_trading-crm-backend_12",
+    "gh_pr_merged_trading-crm-backend_11"
   ],
   "last_poll": null,
   "nudged_today": {
-    "LS-35": "2026-06-14",
+    "LS-35": "2026-06-15",
     "LS-166": "2026-06-06"
   },
   "last_weekly_summary": "2026-05-18",
@@ -104,6 +110,6 @@
   ],
   "sent_initial_milestone_report": true,
   "gh_seeded": true,
-  "gh_last_sha_trading-crm-backend_v2_main": "326e3e976d20a71ab2a8a267834f57fbdf44b684",
+  "gh_last_sha_trading-crm-backend_v2_main": "0db4718089ad41d46f053562edea9a139d6ce023",
   "gh_last_sha_trading-crm-frontend_master": "530e3a5895f11787707410457833cd40deaf7f19"
 }
