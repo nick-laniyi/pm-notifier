@@ -114,7 +114,7 @@
   ],
   "last_poll": null,
   "nudged_today": {
-    "LS-35": "2026-06-24",
+    "LS-35": "2026-06-25",
     "LS-166": "2026-06-06"
   },
   "last_weekly_summary": "2026-05-18",
@@ -129,6 +129,6 @@
   ],
   "sent_initial_milestone_report": true,
   "gh_seeded": true,
-  "gh_last_sha_trading-crm-backend_v2_main": "63d161901de38f3609921219b27947722f64df68",
-  "gh_last_sha_trading-crm-frontend_master": "a58065496a73ba4bd972ddc20b0746f762467a58"
+  "gh_last_sha_trading-crm-backend_v2_main": "c24acd1f2e5023a642c3bb47a7c7486c29b069ee",
+  "gh_last_sha_trading-crm-frontend_master": "e1c8e144eb6cf3d617195a405ef45e8bd7be9ec0"
 }
