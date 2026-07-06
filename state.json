@@ -117,7 +117,10 @@
     "gh_pr_opened_trading-crm-backend_33",
     "gh_pr_merged_trading-crm-backend_33",
     "gh_pr_opened_trading-crm-backend_34",
-    "gh_pr_merged_trading-crm-backend_34"
+    "gh_pr_merged_trading-crm-backend_34",
+    "gh_pr_opened_trading-crm-backend_36",
+    "gh_pr_opened_trading-crm-backend_35",
+    "gh_pr_opened_trading-crm-frontend_7"
   ],
   "last_poll": null,
   "nudged_today": {
